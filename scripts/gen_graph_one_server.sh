@@ -1,16 +1,22 @@
 #!/bin/bash
-cd   /sshfsmount/elba_script
+#cd   /sshfsmount/elba_script
 
-source set_elba_env.sh
-cd -
+#source set_elba_env.sh
+#cd -
 
-tmpFile=gplot_cpu.txt
+####
+#1 csv file, 2 srv_name
+
+
+tmpFile=gplot_collectl.txt
 dataFile=tmp.dat
+csvFile=$1
+srvName=$2
 echo $@
 echo 
-tail -n +1 $1 > $dataFile
+tail -n +1 $csvFile > $dataFile
 
-header=$(head -n1 $1)
+header=$(head -n1 $csvFile)
 #echo $header
 res_arr=(${header// / })
 #echo  ${res_arr[@]}
@@ -21,14 +27,15 @@ plot(){
   indx=$2
   ((indx++))
   
-  echo "$indx $res"
+  #echo "$indx $res"
   if [ $indx -gt 1 ]
   #if [[ "$res" =~ ^(cat|dog|horse)$ ]]; 
   then
-    echo $res
+    #echo $res
     #echo "Generating servers CPU usage graph";
+    echo "set term png size 1200,1800" >> $tmpFile;
     echo "set terminal jpeg enhanced font '/usr/share/fonts/liberation/LiberationSans-Regular.ttf' 12" > $tmpFile;
-    echo set output '"'${res}.jpeg'"' >> $tmpFile;
+    echo set output '"'$3-${res}.jpeg'"' >> $tmpFile;
     echo set title '"'$res'"' >> $tmpFile;
     echo 'set xlabel "Timeline"' >> $tmpFile;
     echo set ylabel '"'$res'"' >> $tmpFile;
@@ -46,6 +53,6 @@ plot(){
 for key  in "${!res_arr[@]}"
 do 
   #echo "$key ${res_arr[$key]}"
-  plot ${res_arr[$key]} $key
+  plot ${res_arr[$key]} $key $srvName
 done
 

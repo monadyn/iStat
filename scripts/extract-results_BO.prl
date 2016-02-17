@@ -1,0 +1,101 @@
+#!/usr/bin/perl
+
+system("\rm aaa");
+system("grep \"Average throughput\" 20*/perf.html | grep -v Error | grep ms > aaa");
+system("grep \"Remote client nodes\" 20*/index.html | grep -v Error > bbb");
+system("grep \"Number of clients\" 20*/index.html | grep -v Error > ccc");
+
+
+
+open (INFILE, "bbb");
+
+$index = 0;
+LINE: while (<INFILE>) {
+  chop;
+  @bbb = split("  :");
+  @tmp = split("<", $bbb[1]); 
+#  print("$tmp\n");
+  $NumClientNodes = $tmp[0] + 1;
+#  print("$NumClientNodes\n");
+  $numClient_bo[$index] = $NumClientNodes;
+  $index++;
+}
+close(INFILE);
+
+
+open (INFILE, "ccc");
+
+$index = 0;
+LINE: while (<INFILE>) {
+  chop;
+  @bbb = split("  :");
+  @tmp = split("<", $bbb[1]);  
+  $ClientPerNode = $tmp[0];
+#  print("$ClientPerNode\n");
+  $clientsPerNode_bo[$index] = $ClientPerNode;
+  $index++;
+}
+close(INFILE);
+
+
+open (INFILE, "aaa");
+
+$count = 0;
+$bo_rw = 0;
+$index = 0;
+$bo_index = 0;
+LINE: while (<INFILE>) {
+  $count++;
+  if ($count != 2) {
+    if ($count == 4) {
+      $count = 0;
+    }
+    next LINE;
+  }
+
+  chop;
+  @bbb = split("B>");
+  @tmp = split(" ms", $bbb[9]);
+  $rt = $tmp[0];
+  @tmp = split(" req", $bbb[13]);
+  $tp = $tmp[0];
+  #print("$rt\n$tp\n");
+  
+  $rt_bo[$bo_index] = $rt;
+  $tp_bo[$bo_index] = $tp;
+  $bo_index++;
+}
+
+close(INFILE);
+
+if ($count != 0) {
+  print("\n!!!ERROR: \$count != 0\n");
+}
+
+print("\nWorkload");
+$workload = 0;
+for ($i = 0; $i < $bo_index; $i++) {
+  $workload = $clientsPerNode_bo[$i] * $numClient_bo[$i];
+  printf(" %d", $workload);
+}
+
+print("\nRT(BO)");
+for ($i = 0; $i < $bo_index; $i++) {
+  printf(" %d", $rt_bo[$i]);
+}
+print("\nTP(BO)");
+for ($i = 0; $i < $bo_index; $i++) {
+  printf(" %d", $tp_bo[$i]);
+}
+#print("\nRT(R/W)");
+#for ($i = 0; $i < $index; $i++) {
+#  printf(" %d", $rt_rw[$i]);
+#}
+#print("\nTP(R/W)");
+#for ($i = 0; $i < $index; $i++) {
+#  printf(" %d", $tp_rw[$i]);
+#}
+print("\n\n");
+
+
+#system("\rm aaa");
