@@ -7,8 +7,7 @@
 tmpFile=gplot_tprs.txt
 
 tprs(){
-  python TPRS_CSV2Dat.py  
-
+  python Pre_CSV2Dat_TPRS.py
   echo "Generating performance graph";
   echo "set terminal jpeg enhanced font '/usr/share/fonts/liberation/LiberationSans-Regular.ttf' 12" > $tmpFile;
   echo set output '"'TEST_TPRS.jpeg'"' >> $tmpFile;
