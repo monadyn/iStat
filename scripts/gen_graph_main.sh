@@ -8,7 +8,7 @@ source set_elba_env.sh
 #cat 'bbb'
 #cat 'ccc' 
 
-
+year=2016
 comsrvName=hshan-Comb
 ###########################
 #all
@@ -65,12 +65,15 @@ plot_srv(){
 }
 
 gen_data_file(){
+#gen header and dat files
+
  	srvName=$1
                       
         cp $3/gen_graph_one_*.sh $3/$2/
         cd $3/$a_path
  
         csvFile=$(find . -iname "${srvName}*.csv" )
+	echo $csvFile
 	tail -n +1 $csvFile > ${srvName}.dat
 	head -n1 $csvFile > ${srvName}.header
 	head -n1 $csvFile > ${comsrvName}.header
@@ -111,7 +114,7 @@ gen_gplot(){
 		#picType=$(echo ${res_arr[$key]} | sed -e "s/\/sec/\\/g")
 		picType=${res_arr[$key]//\/sec/}
 		#echo '---->'
-		#echo $conc $srvName $picType
+		echo $conc $srvName $picType
   		./gen_gplot_one_srv.sh ${srvName}.dat  $conc  $srvName  $picType $[key+1]
   		#echo ./gen_gplot_one_srv.sh ${srvName}.dat  $conc  $srvName  $picType $[key+1]
 		
@@ -218,7 +221,7 @@ plot_comb_customed(){
 
 	#1000-hshan-RT-RT.txt  + 1000-hshan-Comb-[CPU]Totl%.txt
 	#head
-	outputFileName=${conc}-customed
+	outputFileName=${conc}-customed2
         echo "set term png size 1200,1800" >> ${outputFileName}.header.txt;
         echo set output '"'${outputFileName}.png'"' >> ${outputFileName}.header.txt;
         echo set multiplot layout 8, 1 title '"' WL$conc'"' >> ${outputFileName}.header.txt;	
@@ -226,12 +229,39 @@ plot_comb_customed(){
 	#tail
 	#1000-hshan-Comb-RT.tail.txt
 	#1000-hshan-Comb-[CPU]Totl%.tail.txt
-	cat ${conc}-hshan-Comb-RT.tail.txt ${conc}-hshan-Comb-[CPU]Totl%.tail.txt >> ${outputFileName}.tail.txt
+	#3000-hshan-Comb-total_http.tail.txt
+	#3000-hshan-Comb-total_http.tail.txt
+	#3000-hshan-Comb-total_http_end.tail.txt	
+	echo 'merge gplot -->'
+	cat  ${conc}-hshan-Comb-total_http.tail.txt ${conc}-hshan-Comb-total_http_end.tail.txt ${conc}-hshan-Comb-[CPU]Totl%.tail.txt >> ${outputFileName}.tail.txt
 	
         cat ${outputFileName}.header.txt ${outputFileName}.tail.txt >> ${outputFileName}.txt
-        gnuplot ${outputFileName}.txt	
+        gnuplot ${outputFileName}.txt
+
+	
 
 }
+
+
+change_delimiter(){
+        srvName=$1
+
+        cd $3/$a_path
+	a_file=$(find . -iname "${srvName}*.csv" )
+	echo $a_file 
+
+# 1120  find . -iname 'detailRT-client_multiplicity.csv' | xargs rm -f
+# 1121  find . -iname 'detailRT-client_inout.csv' | xargs rm -f
+# 1122  find . -iname 'detailRT-client_responsetime.csv' | xargs rm -f
+        rm -f ${srvName}.csv
+
+	sed 's/,/ /g' $a_file > ${srvName}.csv
+
+ 	#rm 
+	rm $a_file -f
+	echo rm $a_file -f
+}
+
 BASIC_DIR=$(pwd)
 eval all_paths=($(cat 'Test_Config.txt' | awk '{print $1}'))
 #echo ${all_paths[@]}
@@ -239,27 +269,33 @@ eval all_paths=($(cat 'Test_Config.txt' | awk '{print $1}'))
 for a_path in "${all_paths[@]}" 
 do
 	echo '-->'
+	echo $a_path
 	#plot_rs "client" $a_path $BASIC_DIR
-	gen_RT_csvfile  'hshan-RT' $a_path $BASIC_DIR
-	for a_srv in 'hshan-RT' $TOMCAT1_HOST $HTTPD_HOST $MYSQL1_HOST $BENCHMARK_HOST $CLIENT1_HOST
-	#for a_srv in 'hshan-RT' 
+	#gen_RT_csvfile  'hshan-RT' $a_path $BASIC_DIR
+	
+
+	#$CLIENT1_HOST    'hshan-RT' 
+	for a_srv in  $TOMCAT1_HOST $HTTPD_HOST $MYSQL1_HOST $BENCHMARK_HOST 
+	#for a_srv in 'detailRT-client_inout' 'detailRT-client_multiplicity' 'detailRT-client_responsetime' 
 	do
-		#plot_srv $a_srv $a_path $BASIC_DIR
+		echo $a_srv
+		#change_delimiter  $a_srv $a_path $BASIC_DIR
 		gen_data_file  $a_srv $a_path $BASIC_DIR
 		gen_gplot $a_srv $a_path $BASIC_DIR	
-		#exit 0
 	done
 
-	#combine 
+	for a_srv in  'detailRT-client_inout' 'detailRT-client_multiplicity' 'detailRT-client_responsetime' 
+	#for a_srv in 'detailRT-client_inout' 'detailRT-client_multiplicity' 'detailRT-client_responsetime' 
+	do
+		echo $a_srv
+		change_delimiter  $a_srv $a_path $BASIC_DIR
+		gen_data_file  $a_srv $a_path $BASIC_DIR
+		gen_gplot $a_srv $a_path $BASIC_DIR	
+	done
+	
+	#from combination header files 
 	plot_comb_graph	  $comsrvName  $a_path $BASIC_DIR
-	#plot_combination       $comsrvName  $a_path $BASIC_DIR # '[CPU]Totl%'
 
 	#plot client + srv cpu
 	plot_comb_customed $comsrvName  $a_path $BASIC_DIR
 done
-
-#combine
-
-
-#python rubbosAnalyze10_linux_4tier_middleTwoTier.py
-

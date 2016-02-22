@@ -30,6 +30,7 @@ cp /home/hshan/rubbos_base/scripts/chienAn_parser_Trace.py ./
 
 gunzip */zipkin*.gz
 
+
 python Experiments_finegrainedCPU_extract.py
 python Experiments_runtime_extract.py
 python oprofileExtract.py
