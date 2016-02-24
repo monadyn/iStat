@@ -45,11 +45,13 @@ def init(tier):
 	print 'end ', endTime
 	# Start-time and End-time to be processed
 	# 201602211741
-	stime_epoch = time.mktime(time.strptime(startTime, '%Y%m%d%H%M'))
-	etime_epoch = time.mktime(time.strptime(endTime, '%Y%m%d%H%M')) + 59.999999
+	#stime_epoch = time.mktime(time.strptime(startTime, '%Y%m%d%H%M'))
+	#etime_epoch = time.mktime(time.strptime(endTime, '%Y%m%d%H%M')) + 59.999999
         
-	print stime_epoch
-	print etime_epoch	
+	stime_epoch = time.mktime(time.strptime(startTime, '%Y%m%d%H%M%S'))
+	etime_epoch = time.mktime(time.strptime(endTime, '%Y%m%d%H%M%S')) #+ 59.999999
+	print 'stime_epoch:', stime_epoch
+	print 'etime_epoch:', etime_epoch	
 	# The number of time windows in 1 sec.
 	multi_count_in_sec = 20
 	#--------------------------------------------------------------------------------
@@ -240,7 +242,7 @@ def incInOut(inc_time, model, dic_multi):
 		#os._exit(0)
 		return
 	if inc_time2 > etime_epoch * multi_count_in_sec:
-		print 'err2'
+		#print 'err2'
 		return
 	#print   inc_time2, stime_epoch * multi_count_in_sec,  etime_epoch * multi_count_in_sec
 	#os._exit(0)

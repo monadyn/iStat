@@ -76,7 +76,9 @@ gen_data_file(){
 	echo $csvFile
 	tail -n +1 $csvFile > ${srvName}.dat
 	head -n1 $csvFile > ${srvName}.header
-	head -n1 $csvFile > ${comsrvName}.header
+
+	#plot all combination resource type
+	head -n1 $csvFile >> ${comsrvName}.header
 	#header=$(head -n1 $csvFile)
 	#res_arr=(${header// / })
 	#echo  ${res_arr[@]}
@@ -233,7 +235,7 @@ plot_comb_customed(){
 	#3000-hshan-Comb-total_http.tail.txt
 	#3000-hshan-Comb-total_http_end.tail.txt	
 	echo 'merge gplot -->'
-	cat  ${conc}-hshan-Comb-total_http.tail.txt ${conc}-hshan-Comb-total_http_end.tail.txt ${conc}-hshan-Comb-[CPU]Totl%.tail.txt >> ${outputFileName}.tail.txt
+	cat  ${conc}-hshan-Comb-total_http.tail.txt ${conc}-hshan-Comb-total_http_start.tail.txt   ${conc}-hshan-Comb-total_http_end.tail.txt ${conc}-hshan-Comb-[CPU]Totl%.tail.txt >> ${outputFileName}.tail.txt
 	
         cat ${outputFileName}.header.txt ${outputFileName}.tail.txt >> ${outputFileName}.txt
         gnuplot ${outputFileName}.txt
@@ -246,14 +248,19 @@ plot_comb_customed(){
 change_delimiter(){
         srvName=$1
 
-        cd $3/$a_path
-	a_file=$(find . -iname "${srvName}*.csv" )
+        rm -f ${srvName}.csv	
+        echo rm -f ${srvName}.csv	
+        rm -f "${srvName}_wl*.csv"
+        echo rm -f "${srvName}_wl*.csv"
+       
+	cd $3/$a_path
+	a_file=$(find . -iname "${srvName}*ms.csv" )
+	echo 'change_delimiter:'
 	echo $a_file 
 
 # 1120  find . -iname 'detailRT-client_multiplicity.csv' | xargs rm -f
 # 1121  find . -iname 'detailRT-client_inout.csv' | xargs rm -f
 # 1122  find . -iname 'detailRT-client_responsetime.csv' | xargs rm -f
-        rm -f ${srvName}.csv
 
 	sed 's/,/ /g' $a_file > ${srvName}.csv
 
@@ -274,9 +281,9 @@ do
 	#gen_RT_csvfile  'hshan-RT' $a_path $BASIC_DIR
 	
 
-	#$CLIENT1_HOST    'hshan-RT' 
-	for a_srv in  $TOMCAT1_HOST $HTTPD_HOST $MYSQL1_HOST $BENCHMARK_HOST 
-	#for a_srv in 'detailRT-client_inout' 'detailRT-client_multiplicity' 'detailRT-client_responsetime' 
+	#$CLIENT1_HOST    'hshan-RT'  $BENCHMARK_HOST 
+	for a_srv in  $TOMCAT1_HOST $HTTPD_HOST $MYSQL1_HOST
+#	#for a_srv in 'detailRT-client_inout' 'detailRT-client_multiplicity' 'detailRT-client_responsetime' 
 	do
 		echo $a_srv
 		#change_delimiter  $a_srv $a_path $BASIC_DIR

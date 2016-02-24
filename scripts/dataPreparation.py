@@ -410,8 +410,8 @@ rubbosAnalyzer.analyzeThroughput(start_time, end_time, multi_count_in_sec, outpu
             start_time = parts[0][0:len(parts[0])-2]
 
             sAdaptTime = datetime.strptime(parts[1]+" "+parts[2], "%Y-%m-%d %H:%M:%S")
-            sAdaptTime -= timedelta(hours=6)
-            sAdaptTimeArray.append(sAdaptTime.strftime("%Y%m%d%H%M"))
+            #sAdaptTime -= timedelta(hours=6)
+            sAdaptTimeArray.append(sAdaptTime.strftime("%Y%m%d%H%M%S"))
 
 
         
@@ -421,8 +421,8 @@ rubbosAnalyzer.analyzeThroughput(start_time, end_time, multi_count_in_sec, outpu
             end_time = parts[0][0:len(parts[0])-2]
 
             eAdaptTime = datetime.strptime(parts[1]+" "+parts[2], "%Y-%m-%d %H:%M:%S")
-            eAdaptTime -= timedelta(hours=6)
-            eAdaptTimeArray.append(eAdaptTime.strftime("%Y%m%d%H%M"))
+            #eAdaptTime -= timedelta(hours=6)
+            eAdaptTimeArray.append(eAdaptTime.strftime("%Y%m%d%H%M%S"))
             
 
             startTimeArray.append(start_time)
@@ -495,6 +495,8 @@ rubbosAnalyzer.analyzeThroughput(start_time, end_time, multi_count_in_sec, outpu
             OUTFILE.write("python %s %s %s %s %s\n" % (pythonClientTier,timeSpan, sAdaptTimeArray[i], eAdaptTimeArray[i], workloadArray[i]))
             OUTFILE.write("python %s %s %s %s %s\n" % (pythonClientTier_longReq,timeSpan, sAdaptTimeArray[i], eAdaptTimeArray[i], workloadArray[i]))
                 
+            #OUTFILE.write("python %s %s %s %s %s\n" % (pythonClientTier,timeSpan, startTimeArray[i], endTimeArray[i], workloadArray[i]))
+            #OUTFILE.write("python %s %s %s %s %s\n" % (pythonClientTier_longReq,timeSpan, startTimeArray[i], endTimeArray[i], workloadArray[i]))
 
             OUTFILE.write("echo  \n\n\n\n")
         OUTFILE.close()    
